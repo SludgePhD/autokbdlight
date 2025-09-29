@@ -1,0 +1,22 @@
+[package]
+name = "autokbdlight"
+description = "Automatic keyboard backlight daemon for Linux"
+repository = "https://github.com/SludgePhD/autokbdlight"
+license = "0BSD"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85" # (keep this in sync with the version in the GH workflow)
+
+[dependencies]
+clap = { version = "4.5.48", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
+toml = { version = "0.9.7", default-features = false, features = ["serde", "parse"] }
+evdevil = "0.3.3"
+anyhow = "1.0.100"
+log = "0.4.28"
+
+[profile.release]
+debug = "line-tables-only"
+panic = "abort"
+strip = "debuginfo"
+lto = true

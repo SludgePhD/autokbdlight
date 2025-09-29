@@ -1,0 +1,41 @@
+[Unit]
+Description=Automatic keyboard backlight daemon
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/autokbdlight
+Environment=RUST_BACKTRACE=1
+Restart=on-failure
+
+# While this service does have to run as root, it only needs access to a few
+# root-owned device and sysfs files, so it can be locked down pretty tightly.
+
+CapabilityBoundingSet=
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectProc=invisible
+ProtectHostname=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+RestrictRealtime=true
+RestrictNamespaces=true
+MemoryDenyWriteExecute=true
+LockPersonality=true
+PrivateUsers=true
+SystemCallArchitectures=native
+
+ReadOnlyPaths=/
+ReadWritePaths=/dev/input /sys/class/leds
+
+# AF_NETLINK is needed for udev (input device hotplug)
+RestrictAddressFamilies=AF_NETLINK
+
+DevicePolicy=closed
+DeviceAllow=char-input

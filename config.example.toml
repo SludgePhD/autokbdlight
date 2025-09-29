@@ -1,0 +1,39 @@
+[general]
+# Timeout, in seconds, after which the backlight will be turned off.
+# Must be at least 1.
+# Defaults to 10.
+timeout = 10
+
+# Time in seconds to fade the LEDs in and out when their state changes.
+# Defaults to 100ms (0.1 seconds).
+fade = 0.1
+
+# Default brightness to use for all LEDs (0-100).
+# Can be overridden per-LED in the [[led]] sections below.
+# Defaults to 100%.
+brightness = 100
+
+# Multiple [[input]] sections can be defined to listen to multiple input
+# devices.
+# If no [[input]] sections are present, the program will attempt to autodetect
+# keyboards and trackpads and react when any of them are used.
+
+[[input]]
+name = "Apple SPI Keyboard"
+
+[[input]]
+name = "Apple SPI Trackpad"
+# Input device names can be viewed with `sudo evtest`.
+
+
+# Multiple [[led]] sections can be defined to control multiple LEDs when any of
+# the input devices are used.
+# If no [[led]] sections are present, the program will attempt to control all
+# LEDs with `kbd_backlight` in their name.
+
+[[led]]
+# The `name` key must be the name of a directory in /sys/class/leds.
+name = "kbd_backlight"
+# Target brightness when turning the LED on (in % of max. brightness).
+# Defaults to the `brightness` value in the [general] section if absent.
+brightness = 100
