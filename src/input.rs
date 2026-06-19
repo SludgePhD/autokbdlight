@@ -1,7 +1,9 @@
 //! Opens matching `evdev` devices and receives input events.
 
 use std::{
-    io, process,
+    io,
+    path::PathBuf,
+    process,
     sync::{
         Arc,
         mpsc::{self, RecvTimeoutError, SyncSender, sync_channel},
@@ -77,22 +79,27 @@ impl InputHandler {
 
 fn hotplug_thread(enumerate: EnumerateHotplug, filter: &DeviceFilter, sender: &SyncSender<()>) {
     for res in enumerate {
-        let dev = match res {
-            Ok(dev) => dev,
+        let (path, dev) = match res {
+            Ok(it) => it,
             Err(e) => {
                 log::error!("failed to open device: {e}");
                 continue;
             }
         };
 
-        match maybe_open_dev(dev, &filter, sender) {
+        match maybe_open_dev(path, dev, &filter, sender) {
             Ok(()) => {}
             Err(e) => log::error!("failed to query device: {e}"),
         }
     }
 }
 
-fn maybe_open_dev(dev: Evdev, filter: &DeviceFilter, sender: &SyncSender<()>) -> io::Result<()> {
+fn maybe_open_dev(
+    path: PathBuf,
+    dev: Evdev,
+    filter: &DeviceFilter,
+    sender: &SyncSender<()>,
+) -> io::Result<()> {
     let interest = match filter {
         DeviceFilter::Names(items) => items.contains(&dev.name()?),
         DeviceFilter::Auto => is_keyboard_or_trackpad(&dev)?,
@@ -109,7 +116,7 @@ fn maybe_open_dev(dev: Evdev, filter: &DeviceFilter, sender: &SyncSender<()>) ->
     thread::Builder::new()
         .name(name.clone())
         .spawn(move || -> anyhow::Result<()> {
-            log::info!("opened '{}' ({})", name, dev.path().display());
+            log::info!("opened '{}' ({})", name, path.display());
             let mut buf = [InputEvent::zeroed(); 32];
             loop {
                 dev.block_until_readable()?;
